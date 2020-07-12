@@ -3,6 +3,11 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:progress_dialog/progress_dialog.dart';
+import 'package:provider/provider.dart';
+import 'package:quickthink/bottom_navigation_bar.dart';
+import 'package:quickthink/model/new_question_model.dart';
+import 'package:quickthink/services/join_game_service.dart';
+import 'package:quickthink/services/snackbar_service.dart';
 import 'package:quickthink/utils/responsiveness.dart';
 import 'package:http/http.dart' as http;
 
@@ -14,6 +19,8 @@ class JoinGame extends StatefulWidget {
 }
 
 class _JoinGameState extends State<JoinGame> {
+  JoinStatus joinStatus;
+
   var _scaffoldKey = new GlobalKey<ScaffoldState>();
 
   String username = '';
@@ -41,6 +48,7 @@ class _JoinGameState extends State<JoinGame> {
 
   @override
   Widget build(BuildContext context) {
+    final gameState = Provider.of<JoinGameService>(context);
     progressDialog = new ProgressDialog(context,
         isDismissible: false, type: ProgressDialogType.Normal);
 
@@ -229,61 +237,52 @@ class _JoinGameState extends State<JoinGame> {
   }
 
   Widget _loginBtn() {
-    return RaisedButton(
-      padding: EdgeInsets.fromLTRB(70, 20, 70, 20),
-      onPressed: () {
-        print('URL: $url');
-        onPressed();
-      },
-      textColor: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5.0)),
-      color: Color.fromRGBO(24, 197, 217, 1),
-      highlightColor: Color.fromRGBO(24, 197, 217, 1),
-      child: Text('Join Game',
-          style: TextStyle(
-              fontFamily: 'Poppins',
-              fontWeight: FontWeight.w700,
-              fontSize: 16.0,
-              color: Colors.white)),
-    );
-  }
+    final gameState = Provider.of<JoinGameService>(context);
+    return Builder(builder: (BuildContext _context) {
+      SnackBarService.instance.buildContext = _context;
 
-  void onPressed() async {
-    var form = _formKey.currentState;
-    if (form.validate()) {
-      form.save();
-      _joinGame(gameCode, username);
-      //    handleRegistration(nick, password);
-    }
-  }
-
-  void _joinGame(code, user) async {
-    setState(() {
-      progressDialog.show();
+      return joinStatus == JoinStatus.Authenticating
+          ? SpinKitThreeBounce(color: Color(0xFF18C5D9), size: 25)
+          : RaisedButton(
+              padding: EdgeInsets.fromLTRB(70, 20, 70, 20),
+              onPressed: () async {
+                print('URL: $url');
+                var form = _formKey.currentState;
+                if (form.validate()) {
+                  form.save();
+                  await gameState.joinGame(gameCode, username);
+                  List<Question> questions = gameState.questionList;
+                  if (questions.isNotEmpty) {
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => DashboardScreen()));
+                  }
+                }
+              },
+              textColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0)),
+              color: Color.fromRGBO(24, 197, 217, 1),
+              highlightColor: Color.fromRGBO(24, 197, 217, 1),
+              child: Text('Join Game',
+                  style: TextStyle(
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16.0,
+                      color: Colors.white)),
+            );
     });
-    // url = Constants().urlJoinGame;
-    http.Response response = await http.post(
-      url,
-      headers: {'Accept': 'application/json'},
-      body: {"game_code": code, "user_name": user},
-    );
-    if (response.statusCode == 200) {
-      String data = response.body;
-
-      //TODO Retrieve the questions
-      var decodedData = jsonDecode(data)['data'];
-      //TODO Navigate to game screen
-
-      setState(() {
-        progressDialog.hide();
-      });
-      _showInSnackBar('Game Coming Soon', Colors.green);
-    } else {
-      String data = response.body;
-      setState(() {
-        progressDialog.hide();
-      });
-      _showInSnackBar(jsonDecode(data)['error'], Colors.red);
-    }
   }
+
+  // void onPressed(user, code) async {
+  //   var form = _formKey.currentState;
+  //   if (form.validate()) {
+  //     form.save();
+  //     await gameState.joingame(gameCode, username);
+  //     joinGame(gameCode, username);
+  //     //    handleRegistration(nick, password);
+  //   }
+  // }
+
 }

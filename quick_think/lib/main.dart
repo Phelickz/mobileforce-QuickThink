@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:quickthink/screens/help.dart';
+import 'package:provider/provider.dart';
+import 'package:quickthink/services/join_game_service.dart';
 import 'screens/splashpage.dart';
 import 'screens/onboarding_screens/first_onboard_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -35,24 +36,29 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: 'QuickThink',
-      theme: ThemeData(
-        primaryColor: Color(0xFF1C1046),
-        visualDensity: VisualDensity.adaptivePlatformDensity,
-        colorScheme: themeLight.colorScheme,
+    return MultiProvider(
+    providers: [
+      ChangeNotifierProvider(create: (_) => JoinGameService())
+    ],
+          child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'QuickThink',
+        theme: ThemeData(
+          primaryColor: Color(0xFF1C1046),
+          visualDensity: VisualDensity.adaptivePlatformDensity,
+          colorScheme: themeLight.colorScheme,
+        ),
+        darkTheme: themeDark,
+        themeMode: currentTheme.currentTheme(),
+        initialRoute: onBoardCount == 0 || onBoardCount == null
+            ? 'showOnBoardScreen'
+            : 'showSplashPage',
+        routes: {
+          'showOnBoardScreen': (context) => OnBoardScreen(),
+          'showSplashPage': (context) => SplashPage(),
+          Registration.id: (context) => Registration(),
+        },
       ),
-      darkTheme: themeDark,
-      themeMode: currentTheme.currentTheme(),
-      initialRoute: onBoardCount == 0 || onBoardCount == null
-          ? 'showOnBoardScreen'
-          : 'showSplashPage',
-      routes: {
-        'showOnBoardScreen': (context) => OnBoardScreen(),
-        'showSplashPage': (context) => SplashPage(),
-        Registration.id: (context) => Registration(),
-      },
     );
   }
 }
