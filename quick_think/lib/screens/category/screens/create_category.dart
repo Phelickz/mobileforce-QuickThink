@@ -224,6 +224,7 @@ class _CreateCategoryState extends State<CreateCategory> {
           fontSize: SizeConfig().textSize(context, 3),
           color: Colors.white),
       controller: controller,
+      keyboardType: TextInputType.text,
       validator: (val) {
         if (val.length == 0) {
           return 'Field Should Not Be Empty';
@@ -270,7 +271,7 @@ class _CreateCategoryState extends State<CreateCategory> {
               if (form.validate()) {
                 form.save();
                 print(controller.text);
-                apiCallService.createCategory(controller.text).then(
+                apiCallService.createCategory(controller.text.trim()).then(
                       (value) => {
                         if (value != null)
                           {

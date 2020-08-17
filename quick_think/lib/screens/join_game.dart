@@ -19,9 +19,11 @@ import 'package:quickthink/utils/urls.dart';
 import 'package:quickthink/widgets/noInternet.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const String url = 'https://brainteaser.pythonanywhere.com/game/play';
-const String checkUrl =
-    'https://brainteaser.pythonanywhere.com/game/user/play/check';
+import 'login/responsiveness/res.dart';
+
+// const String url = 'https://brainteaser.pythonanywhere.com/game/play';
+// const String checkUrl =
+//     'https://brainteaser.pythonanywhere.com/game/user/play/check';
 
 class JoinGame extends StatefulWidget {
   static const routeName = 'join-game';
@@ -160,12 +162,20 @@ class _JoinGameState extends State<JoinGame> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      SizedBox(
-                        height: SizeConfig().yMargin(context, 4),
+                      Align(
+                        alignment: Alignment.center,
+                        child: Container(
+                          width: McGyver.rsDoubleW(context, 30),
+                          height: McGyver.rsDoubleH(context, 20),
+                          decoration: BoxDecoration(
+                              // color: Colors.red,
+                              image: DecorationImage(
+                                  image: AssetImage(
+                                      'assets/app_name_vector.png'))),
+                        ),
                       ),
-                      _logoText(),
                       SizedBox(
-                        height: SizeConfig().yMargin(context, 10),
+                        height: SizeConfig().yMargin(context, 1.7),
                       ),
                       _prompt(),
                       _form(),
@@ -256,7 +266,7 @@ class _JoinGameState extends State<JoinGame> {
           fontFamily: 'Poppins',
           color: Colors.white,
           fontWeight: FontWeight.w600,
-          fontSize: SizeConfig().textSize(context, 3.7),
+          fontSize: SizeConfig().textSize(context, 3.2),
         ),
       ),
     );
@@ -292,6 +302,7 @@ class _JoinGameState extends State<JoinGame> {
       ),
       child: TextFormField(
         controller: username,
+        keyboardType: TextInputType.text,
         style: TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.w400,
@@ -299,13 +310,13 @@ class _JoinGameState extends State<JoinGame> {
             color: Colors.white),
         onChanged: (val) {},
         validator: (val) {
-          if (val.length == 0) {
+          if (val.trim().length == 0) {
             return 'Username Should Not Be Empty';
           }
-          if (val.length <= 2) {
+          if (val.trim().length <= 2) {
             return 'should be 3 or more characters';
           }
-          if (!RegExp(r"^[a-z0-9A-Z_-]{3,16}$").hasMatch(val)) {
+          if (!RegExp(r"^[a-z0-9A-Z_-]{3,16}$").hasMatch(val.trim())) {
             return "can only include _ or -";
           }
           return null;
@@ -405,7 +416,8 @@ class _JoinGameState extends State<JoinGame> {
       } */
       progressDialog.show();
 
-      await _joiningGame(gameCode.text, username.text).then((response) {
+      await _joiningGame(gameCode.text.trim(), username.text.trim())
+          .then((response) {
         if (response.statusCode == 200) {
           ///Persisting the played gameCodes to sharedprefs
           playedGames.insert(0, gameCode.text);
@@ -416,8 +428,8 @@ class _JoinGameState extends State<JoinGame> {
               context,
               MaterialPageRoute(
                   builder: (o) => QuizPage(
-                        gameCode: gameCode.text,
-                        userName: username.text,
+                        gameCode: gameCode.text.trim(),
+                        userName: username.text.trim(),
                       )));
         } else if (response.statusCode == 400) {
           progressDialog.hide();
@@ -427,7 +439,7 @@ class _JoinGameState extends State<JoinGame> {
         } else {
           progressDialog.hide();
           setState(() {
-            showError("Oops! Cannot join game at this time \n Try again later");
+            showError(json.decode(response.body)['error']);
           });
         }
       });
@@ -445,69 +457,69 @@ class _JoinGameState extends State<JoinGame> {
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(5.0)),
             child: Container(
-              height: height * .4,
-              padding: EdgeInsets.all(10.0),
+              height: SizeConfig().getXSize(context, 650),
+              width: SizeConfig().getYSize(context, 400),
+              padding: EdgeInsets.only(top: SizeConfig().xMargin(context, 5)),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Container(
-                    margin: EdgeInsets.only(top: 20.0, bottom: 20),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: SizeConfig().xMargin(context, 2)),
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
-                        Container(
-                          margin: EdgeInsets.only(left: 50.0),
-                          child: Icon(
-                            FlutterIcons.alert_circle_mco,
-                            color: Hexcolor('#FF1F2E'),
-                            size: 36.0,
+                        Expanded(
+                          flex: 1,
+                          child: Center(
+                            child: Icon(
+                              FlutterIcons.alert_circle_mco,
+                              color: Hexcolor('#FF1F2E'),
+                              size: 36.0,
+                            ),
                           ),
                         ),
-                        SizedBox(width: 10.0),
+                        // SizedBox(width: 10.0),
                         Expanded(
-                          flex: 2,
+                          flex: 3,
                           child: Text(
                             "Wait a Minute!",
                             style: TextStyle(
                                 fontFamily: 'Poppins',
                                 fontWeight: FontWeight.w700,
-                                fontSize: 24.0,
+                                fontSize: SizeConfig().textSize(context, 3),
                                 color: Hexcolor('#1C1046')),
                           ),
-                        )
+                        ),
                       ],
                     ),
                   ),
+                  SizedBox(height: SizeConfig().getXSize(context, 30)),
                   Container(
-                    child: SingleChildScrollView(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 8.0),
-                        child: Text(
-                          error,
-                          style: TextStyle(
-                              fontFamily: 'Poppins',
-                              fontSize: 22.0,
-                              letterSpacing: 1.0,
-                              color: Hexcolor('#1C1046')),
-                          textAlign: TextAlign.start,
-                        ),
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(
+                          horizontal: SizeConfig().xMargin(context, 2)),
+                      child: Text(
+                        error,
+                        style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontSize: SizeConfig().textSize(context, 2),
+                            letterSpacing: 1.0,
+                            color: Hexcolor('#1C1046')),
+                        textAlign: TextAlign.start,
                       ),
                     ),
                   ),
-                  SizedBox(height: 30.0),
+                  SizedBox(height: SizeConfig().getXSize(context, 30)),
                   RaisedButton(
-                    padding: EdgeInsets.fromLTRB(30, 20, 30, 20),
+                    //    padding: EdgeInsets.fromLTRB(30, 20, 30, 20),
                     textColor: Colors.white,
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5.0)),
                     color: Hexcolor('#18C5D9'),
-                    child: Text('Join new game',
+                    child: Text('OK',
                         style: TextStyle(
                             fontFamily: 'Poppins',
                             fontWeight: FontWeight.w700,
-                            fontSize: 20.0,
+                            fontSize: SizeConfig().textSize(context, 2),
                             color: Colors.white)),
                     onPressed: () {
                       Navigator.of(context).pop();

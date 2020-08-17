@@ -6,6 +6,7 @@ import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
+import 'package:quickthink/screens/forgot_password/views/forgot_password.dart';
 import 'package:quickthink/widgets/noInternet.dart';
 import '../../../bottom_navigation_bar.dart';
 import '../../../utils/responsiveness.dart';
@@ -141,6 +142,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       SizedBox(height: McGyver.rsDoubleH(context, 5)),
                       TextFieldContainer(
                         text: 'Username',
+                        textInputType: TextInputType.text,
                         obscure: false,
                         controller: usernameController,
                         validator: UsernameValidator.validate,
@@ -149,6 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       TextFieldContainer(
                           text: 'Password',
                           controller: passwordController,
+                          textInputType: TextInputType.text,
                           validator: PasswordValidator.validate,
                           obscure: obscure,
                           suffixIcon: IconButton(
@@ -160,6 +163,26 @@ class _LoginScreenState extends State<LoginScreen> {
                                   obscure = !obscure;
                                 });
                               })),
+                      SizedBox(height: McGyver.rsDoubleH(context, 1)),
+                      GestureDetector(
+                        onTap: () {
+                          Get.to(ForgotPassword());
+                        },
+                        child: Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: McGyver.rsDoubleW(context, 9)),
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              ' Forgot Password?',
+                              style: GoogleFonts.poppins(
+                                  color: buttonColor,
+                                  fontWeight: FontWeight.normal,
+                                  fontSize: SizeConfig().textSize(context, 2)),
+                            ),
+                          ),
+                        ),
+                      ),
                       SizedBox(height: McGyver.rsDoubleH(context, 5)),
                       Align(
                           alignment: Alignment.center,
@@ -175,14 +198,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                       form.save();
                                       state
                                           .login(
-                                        usernameController.text,
-                                        passwordController.text,
+                                        usernameController.text.trim(),
+                                        passwordController.text.trim(),
                                       )
                                           .then((value) {
                                         if (value != null) {
                                           Future.delayed(Duration(seconds: 3))
-                                              .then((value) =>
-                                                  Get.offAll(DashboardScreen()));
+                                              .then((value) => Get.offAll(
+                                                  DashboardScreen()));
                                         }
                                       });
                                     }

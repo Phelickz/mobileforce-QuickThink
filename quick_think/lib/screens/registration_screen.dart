@@ -1,4 +1,3 @@
-
 import 'dart:async';
 
 import 'package:connectivity/connectivity.dart';
@@ -50,7 +49,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
             connectivityResult == ConnectivityResult.mobile) {
           if (!mounted) return;
           setState(() {
-         //   startTimer();
+            //   startTimer();
             _connection = false;
           });
         } else {
@@ -144,7 +143,8 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       SizedBox(height: McGyver.rsDoubleH(context, 5)),
                       TextFieldContainer(
                         obscure: false,
-                        text: 'Name',
+                        text: 'Username',
+                        textInputType: TextInputType.text,
                         controller: usernameController,
                         validator: UsernameValidator.validate,
                       ),
@@ -152,6 +152,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       TextFieldContainer(
                         obscure: false,
                         text: 'Email',
+                        textInputType: TextInputType.emailAddress,
                         controller: emailController,
                         validator: EmailValidator.validate,
                       ),
@@ -159,6 +160,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       TextFieldContainer(
                           obscure: obscure,
                           text: 'Password',
+                          textInputType: TextInputType.text,
                           controller: passwordController,
                           validator: PasswordValidator.validate,
                           suffixIcon: IconButton(
@@ -187,9 +189,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                       form.save();
                                       state
                                           .signup(
-                                        usernameController.text,
-                                        emailController.text,
-                                        passwordController.text,
+                                        usernameController.text.trim(),
+                                        emailController.text.trim(),
+                                        passwordController.text.trim(),
                                       )
                                           .then((value) {
                                         if (value != null) {
@@ -211,4 +213,3 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           );
   }
 }
-

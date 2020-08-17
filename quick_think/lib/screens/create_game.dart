@@ -20,6 +20,8 @@ import 'package:quickthink/widgets/noInternet.dart';
 import 'package:share/share.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'login/responsiveness/res.dart';
+
 class CreateGame extends StatefulWidget {
   static const routeName = 'create_game';
   @override
@@ -241,9 +243,25 @@ class _CreateGameState extends State<CreateGame> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
-                        _logoText(),
-                        SizedBox(
+                        /* SizedBox(
                           height: SizeConfig().yMargin(context, 10),
+                        ),
+                        _logoText(), */
+                        Align(
+                          alignment: Alignment.center,
+                          child: Container(
+                            width: McGyver.rsDoubleW(context, 30),
+                            height: McGyver.rsDoubleH(context, 20),
+                            decoration: BoxDecoration(
+                                // color: Colors.red,
+                                image: DecorationImage(
+                                    image: AssetImage(
+                                        'assets/app_name_vector.png'))),
+                          ),
+                        ),
+
+                        SizedBox(
+                          height: SizeConfig().yMargin(context, 4),
                         ),
                         _prompt(),
                         SizedBox(
@@ -460,16 +478,16 @@ class _CreateGameState extends State<CreateGame> {
         TextSpan(
             text: 'Quick',
             style: TextStyle(
-                fontFamily: 'DM Sans',
+                fontFamily: 'Poppins',
                 fontWeight: FontWeight.w700,
-                fontSize: SizeConfig().textSize(context, 3),
+                fontSize: SizeConfig().textSize(context, 2.5),
                 color: Colors.white)),
         TextSpan(
             text: 'Think',
             style: TextStyle(
-              fontFamily: 'DM Sans',
+              fontFamily: 'Poppins',
               fontWeight: FontWeight.w700,
-              fontSize: SizeConfig().textSize(context, 3),
+              fontSize: SizeConfig().textSize(context, 2.5),
               color: Color.fromRGBO(24, 197, 217, 1),
             ))
       ]),
@@ -484,19 +502,20 @@ class _CreateGameState extends State<CreateGame> {
       ),
       child: TextFormField(
         controller: userNameController,
+        keyboardType: TextInputType.text,
         style: TextStyle(
             fontFamily: 'Poppins',
             fontWeight: FontWeight.w400,
             fontSize: SizeConfig().textSize(context, 3),
             color: Colors.white),
         validator: (val) {
-          if (val.length == 0) {
+          if (val.trim().length == 0) {
             return 'Quiz Name Should Not Be Empty';
           }
-          if (val.length <= 2) {
+          if (val.trim().length <= 2) {
             return 'should be 3 or more characters';
           }
-          if (!RegExp(r"^[a-z0-9A-Z_-]{3,16}$").hasMatch(val)) {
+          if (!RegExp(r"^[a-z0-9A-Z_-]{3,16}$").hasMatch(val.trim())) {
             return "can only include _ or -";
           }
 
@@ -734,7 +753,7 @@ class _CreateGameState extends State<CreateGame> {
         progressDialog.show();
       });
 
-      hintText = await getCode(userName, category);
+      hintText = await getCode(userName.trim(), category);
 
       setState(() {
         progressDialog.hide();
